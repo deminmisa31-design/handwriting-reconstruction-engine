@@ -1,0 +1,360 @@
+{
+  "text": "hello world\ntest world",
+  "language": "en",
+  "mode": "experimental-synthesis",
+  "tokens": [
+    {
+      "kind": "sample",
+      "sample_id": "c8cd5ac28bf04c618a1fcc0079f68e93",
+      "revision": 2,
+      "text": "hello",
+      "start": 0,
+      "end": 5,
+      "group": 0,
+      "join_previous": false
+    },
+    {
+      "kind": "space",
+      "text": " ",
+      "start": 5,
+      "end": 6
+    },
+    {
+      "kind": "sample",
+      "sample_id": "6782df29968c44e0baa72512a731a8eb",
+      "revision": 2,
+      "text": "world",
+      "start": 6,
+      "end": 11,
+      "group": 1,
+      "join_previous": false
+    },
+    {
+      "kind": "newline",
+      "text": "\n",
+      "start": 11,
+      "end": 12
+    },
+    {
+      "kind": "sample",
+      "sample_id": "32ee56ffe9814b81be5e1ef0d6a9d988",
+      "revision": 2,
+      "text": "test",
+      "start": 12,
+      "end": 16,
+      "group": 2,
+      "join_previous": false
+    },
+    {
+      "kind": "space",
+      "text": " ",
+      "start": 16,
+      "end": 17
+    },
+    {
+      "kind": "sample",
+      "sample_id": "6782df29968c44e0baa72512a731a8eb",
+      "revision": 2,
+      "text": "world",
+      "start": 17,
+      "end": 22,
+      "group": 3,
+      "join_previous": false
+    }
+  ],
+  "engine_version": "0.1.0",
+  "placements": [
+    {
+      "kind": "sample",
+      "sample_id": "c8cd5ac28bf04c618a1fcc0079f68e93",
+      "revision": 2,
+      "text": "hello",
+      "start": 0,
+      "end": 5,
+      "group": 0,
+      "join_previous": false,
+      "x": 48,
+      "y": 78,
+      "width": 88,
+      "height": 37,
+      "source_id": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_bbox": [
+        67,
+        112,
+        155,
+        149
+      ],
+      "source_polygon": null,
+      "source_derivative_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "original_polygon": [
+        [
+          67.0,
+          112.0
+        ],
+        [
+          155.0,
+          112.0
+        ],
+        [
+          155.0,
+          149.0
+        ],
+        [
+          67.0,
+          149.0
+        ]
+      ],
+      "normalized_to_original": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "alpha_sha256": "cdab16dcb0f1075d41e23292182725ce0fbcf533e71c0acd1abd0d12dbfa5a26",
+      "baseline": 29.6,
+      "entry": null,
+      "exit": null,
+      "ink_color_srgb": [
+        0.23529411764705882,
+        0.3137254901960784,
+        0.5568627450980392
+      ],
+      "synthetic": true
+    },
+    {
+      "kind": "sample",
+      "sample_id": "6782df29968c44e0baa72512a731a8eb",
+      "revision": 2,
+      "text": "world",
+      "start": 6,
+      "end": 11,
+      "group": 1,
+      "join_previous": false,
+      "x": 158,
+      "y": 78,
+      "width": 110,
+      "height": 37,
+      "source_id": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_bbox": [
+        317,
+        112,
+        427,
+        149
+      ],
+      "source_polygon": null,
+      "source_derivative_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "original_polygon": [
+        [
+          317.0,
+          112.0
+        ],
+        [
+          427.0,
+          112.0
+        ],
+        [
+          427.0,
+          149.0
+        ],
+        [
+          317.0,
+          149.0
+        ]
+      ],
+      "normalized_to_original": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "alpha_sha256": "e73797926d33be80e9a49cf3b5ee8063553c126033c515a26f10b5f22d257df0",
+      "baseline": 29.6,
+      "entry": null,
+      "exit": null,
+      "ink_color_srgb": [
+        0.23529411764705882,
+        0.3137254901960784,
+        0.5568627450980392
+      ],
+      "synthetic": true
+    },
+    {
+      "kind": "sample",
+      "sample_id": "32ee56ffe9814b81be5e1ef0d6a9d988",
+      "revision": 2,
+      "text": "test",
+      "start": 12,
+      "end": 16,
+      "group": 2,
+      "join_previous": false,
+      "x": 48,
+      "y": 162,
+      "width": 75,
+      "height": 32,
+      "source_id": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_bbox": [
+        577,
+        117,
+        652,
+        149
+      ],
+      "source_polygon": null,
+      "source_derivative_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "original_polygon": [
+        [
+          577.0,
+          117.0
+        ],
+        [
+          652.0,
+          117.0
+        ],
+        [
+          652.0,
+          149.0
+        ],
+        [
+          577.0,
+          149.0
+        ]
+      ],
+      "normalized_to_original": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "alpha_sha256": "472df3a38d36b0c88e90177da7777462c3789b5f1194fa7577cdb2e38bb3ecc8",
+      "baseline": 25.6,
+      "entry": null,
+      "exit": null,
+      "ink_color_srgb": [
+        0.23529411764705882,
+        0.3137254901960784,
+        0.5568627450980392
+      ],
+      "synthetic": true
+    },
+    {
+      "kind": "sample",
+      "sample_id": "6782df29968c44e0baa72512a731a8eb",
+      "revision": 2,
+      "text": "world",
+      "start": 17,
+      "end": 22,
+      "group": 3,
+      "join_previous": false,
+      "x": 145,
+      "y": 158,
+      "width": 110,
+      "height": 37,
+      "source_id": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_bbox": [
+        317,
+        112,
+        427,
+        149
+      ],
+      "source_polygon": null,
+      "source_derivative_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "original_polygon": [
+        [
+          317.0,
+          112.0
+        ],
+        [
+          427.0,
+          112.0
+        ],
+        [
+          427.0,
+          149.0
+        ],
+        [
+          317.0,
+          149.0
+        ]
+      ],
+      "normalized_to_original": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "alpha_sha256": "e73797926d33be80e9a49cf3b5ee8063553c126033c515a26f10b5f22d257df0",
+      "baseline": 29.6,
+      "entry": null,
+      "exit": null,
+      "ink_color_srgb": [
+        0.23529411764705882,
+        0.3137254901960784,
+        0.5568627450980392
+      ],
+      "synthetic": true
+    }
+  ],
+  "width": 1000,
+  "height": 600,
+  "settings": {
+    "margin": 48,
+    "line_height": 80,
+    "space": 22,
+    "grid": "squared",
+    "grid_step": 20,
+    "global_blur": 0.0,
+    "color_space": "linear RGB compositing"
+  },
+  "text_sha256": "ad871c63c33ae288b272120001502cde5a6a0d3e24e54c01c8ba5d061a7ecea1",
+  "image_sha256": "676c502a65a64d46482fa78b2e47ce34299f488e47abfbe4369cb60d6e510166",
+  "generated": true,
+  "synthetic_sources": true,
+  "notice": "Digital composition from verified samples. Not an original handwritten page."
+}

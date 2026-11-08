@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "errors": [],
+  "warnings": [
+    {
+      "code": "reused_variants",
+      "counts": {
+        "6782df29968c44e0baa72512a731a8eb": 2
+      },
+      "message": "Limited variation; no invented alternatives"
+    },
+    {
+      "code": "synthetic",
+      "message": "Contains explicitly synthetic fixtures"
+    }
+  ],
+  "checks": [
+    "structured_text",
+    "placement_count",
+    "canvas_bounds",
+    "token_order",
+    "source_hash",
+    "verified_revision",
+    "alpha_hash"
+  ],
+  "not_measured": [
+    "writer_similarity",
+    "optical_realism",
+    "OCR_accuracy",
+    "perceptual_halo_quality"
+  ]
+}

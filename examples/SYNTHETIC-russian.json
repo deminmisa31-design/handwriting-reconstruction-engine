@@ -1,0 +1,360 @@
+{
+  "text": "Привет мир\nмир Привет",
+  "language": "ru",
+  "mode": "experimental-synthesis",
+  "tokens": [
+    {
+      "kind": "sample",
+      "sample_id": "8330d3e5f9f64cd5bb1fdceedc05911b",
+      "revision": 2,
+      "text": "Привет",
+      "start": 0,
+      "end": 6,
+      "group": 0,
+      "join_previous": false
+    },
+    {
+      "kind": "space",
+      "text": " ",
+      "start": 6,
+      "end": 7
+    },
+    {
+      "kind": "sample",
+      "sample_id": "14166593d78e4556b0a0559eced13a3d",
+      "revision": 2,
+      "text": "мир",
+      "start": 7,
+      "end": 10,
+      "group": 1,
+      "join_previous": false
+    },
+    {
+      "kind": "newline",
+      "text": "\n",
+      "start": 10,
+      "end": 11
+    },
+    {
+      "kind": "sample",
+      "sample_id": "14166593d78e4556b0a0559eced13a3d",
+      "revision": 2,
+      "text": "мир",
+      "start": 11,
+      "end": 14,
+      "group": 2,
+      "join_previous": false
+    },
+    {
+      "kind": "space",
+      "text": " ",
+      "start": 14,
+      "end": 15
+    },
+    {
+      "kind": "sample",
+      "sample_id": "8330d3e5f9f64cd5bb1fdceedc05911b",
+      "revision": 2,
+      "text": "Привет",
+      "start": 15,
+      "end": 21,
+      "group": 3,
+      "join_previous": false
+    }
+  ],
+  "engine_version": "0.1.0",
+  "placements": [
+    {
+      "kind": "sample",
+      "sample_id": "8330d3e5f9f64cd5bb1fdceedc05911b",
+      "revision": 2,
+      "text": "Привет",
+      "start": 0,
+      "end": 6,
+      "group": 0,
+      "join_previous": false,
+      "x": 48,
+      "y": 69,
+      "width": 153,
+      "height": 49,
+      "source_id": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_bbox": [
+        67,
+        251,
+        220,
+        300
+      ],
+      "source_polygon": null,
+      "source_derivative_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "original_polygon": [
+        [
+          67.0,
+          251.0
+        ],
+        [
+          220.0,
+          251.0
+        ],
+        [
+          220.0,
+          300.0
+        ],
+        [
+          67.0,
+          300.0
+        ]
+      ],
+      "normalized_to_original": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "alpha_sha256": "0d918017fee191bf4f50e4a464dcd31d9abd3b8669185c87165cc67b178934f4",
+      "baseline": 39.2,
+      "entry": null,
+      "exit": null,
+      "ink_color_srgb": [
+        0.23529411764705882,
+        0.3137254901960784,
+        0.5568627450980392
+      ],
+      "synthetic": true
+    },
+    {
+      "kind": "sample",
+      "sample_id": "14166593d78e4556b0a0559eced13a3d",
+      "revision": 2,
+      "text": "мир",
+      "start": 7,
+      "end": 10,
+      "group": 1,
+      "join_previous": false,
+      "x": 223,
+      "y": 77,
+      "width": 82,
+      "height": 39,
+      "source_id": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_bbox": [
+        397,
+        261,
+        479,
+        300
+      ],
+      "source_polygon": null,
+      "source_derivative_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "original_polygon": [
+        [
+          397.0,
+          261.0
+        ],
+        [
+          479.0,
+          261.0
+        ],
+        [
+          479.0,
+          300.0
+        ],
+        [
+          397.0,
+          300.0
+        ]
+      ],
+      "normalized_to_original": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "alpha_sha256": "286017bc8c2c75f933c9978399d5c5748531ba9d09c4407808c42d8ea36d867c",
+      "baseline": 31.200000000000003,
+      "entry": null,
+      "exit": null,
+      "ink_color_srgb": [
+        0.23529411764705882,
+        0.3137254901960784,
+        0.5568627450980392
+      ],
+      "synthetic": true
+    },
+    {
+      "kind": "sample",
+      "sample_id": "14166593d78e4556b0a0559eced13a3d",
+      "revision": 2,
+      "text": "мир",
+      "start": 11,
+      "end": 14,
+      "group": 2,
+      "join_previous": false,
+      "x": 48,
+      "y": 157,
+      "width": 82,
+      "height": 39,
+      "source_id": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_bbox": [
+        397,
+        261,
+        479,
+        300
+      ],
+      "source_polygon": null,
+      "source_derivative_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "original_polygon": [
+        [
+          397.0,
+          261.0
+        ],
+        [
+          479.0,
+          261.0
+        ],
+        [
+          479.0,
+          300.0
+        ],
+        [
+          397.0,
+          300.0
+        ]
+      ],
+      "normalized_to_original": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "alpha_sha256": "286017bc8c2c75f933c9978399d5c5748531ba9d09c4407808c42d8ea36d867c",
+      "baseline": 31.200000000000003,
+      "entry": null,
+      "exit": null,
+      "ink_color_srgb": [
+        0.23529411764705882,
+        0.3137254901960784,
+        0.5568627450980392
+      ],
+      "synthetic": true
+    },
+    {
+      "kind": "sample",
+      "sample_id": "8330d3e5f9f64cd5bb1fdceedc05911b",
+      "revision": 2,
+      "text": "Привет",
+      "start": 15,
+      "end": 21,
+      "group": 3,
+      "join_previous": false,
+      "x": 152,
+      "y": 149,
+      "width": 153,
+      "height": 49,
+      "source_id": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "source_bbox": [
+        67,
+        251,
+        220,
+        300
+      ],
+      "source_polygon": null,
+      "source_derivative_sha256": "f05065159a06eed2c811e13bf7a7ce9777bd7bfcd2d9953f60c1a4fca084b023",
+      "original_polygon": [
+        [
+          67.0,
+          251.0
+        ],
+        [
+          220.0,
+          251.0
+        ],
+        [
+          220.0,
+          300.0
+        ],
+        [
+          67.0,
+          300.0
+        ]
+      ],
+      "normalized_to_original": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "alpha_sha256": "0d918017fee191bf4f50e4a464dcd31d9abd3b8669185c87165cc67b178934f4",
+      "baseline": 39.2,
+      "entry": null,
+      "exit": null,
+      "ink_color_srgb": [
+        0.23529411764705882,
+        0.3137254901960784,
+        0.5568627450980392
+      ],
+      "synthetic": true
+    }
+  ],
+  "width": 1000,
+  "height": 600,
+  "settings": {
+    "margin": 48,
+    "line_height": 80,
+    "space": 22,
+    "grid": "squared",
+    "grid_step": 20,
+    "global_blur": 0.0,
+    "color_space": "linear RGB compositing"
+  },
+  "text_sha256": "2c3728bc047009dcb9e0734217f4b1e0006414c1833fd6c4b4f6251f6921e10b",
+  "image_sha256": "a69338e5ac90dbd64d3bbfa71e76da385822b6da488de642c692d9c51844f2ee",
+  "generated": true,
+  "synthetic_sources": true,
+  "notice": "Digital composition from verified samples. Not an original handwritten page."
+}
