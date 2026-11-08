@@ -14,9 +14,10 @@ def main():
     imp=sub.add_parser('import',help='Import images/directories/ZIP without changing originals')
     imp.add_argument('paths',nargs='+')
     analyze=sub.add_parser('analyze'); analyze.add_argument('source_id',nargs='?',default='all')
+    analyze.add_argument('--experimental-grid',action='store_true')
     serve=sub.add_parser('serve'); serve.add_argument('--port',type=int,default=8765)
     ren=sub.add_parser('render'); ren.add_argument('--text',required=True,type=Path)
-    ren.add_argument('--language',required=True,choices=['ru','en']); ren.add_argument('--output',required=True,type=Path)
+    ren.add_argument('--language',required=True,choices=['ru','en','auto']); ren.add_argument('--output',required=True,type=Path)
     ren.add_argument('--width',type=int,default=1200); ren.add_argument('--height',type=int,default=1600)
     ren.add_argument('--line-height',type=int,default=80)
     ren.add_argument('--mode',choices=['strict-real','experimental-synthesis'],default='strict-real')
@@ -27,11 +28,16 @@ def main():
     report=sub.add_parser('report');report.add_argument('manifest',type=Path)
     inv=sub.add_parser('inventory');inv.add_argument('--language',choices=['ru','en'],required=True)
     sub.add_parser('stats'); sub.add_parser('demo'); sub.add_parser('doctor')
+    diag=sub.add_parser('diagnose');diag.add_argument('images',type=Path,nargs='+')
+    diag.add_argument('--output',type=Path,required=True,help='Private local diagnostics folder; never upload it')
     export=sub.add_parser('export'); export.add_argument('output',type=Path)
     args=parser.parse_args()
     store=Store(args.library)
     try:
-        if args.command=='import':
+        if args.command=='diagnose':
+            from .diagnostics import diagnose_images
+            result=diagnose_images(args.images,args.output)
+        elif args.command=='import':
             from .store import EXTENSIONS
             results=[]
             for item in args.paths:
@@ -46,7 +52,7 @@ def main():
             result=results
         elif args.command=='analyze':
             ids=[s['id'] for s in store.sources()] if args.source_id=='all' else [args.source_id]
-            result=[store.analyze(id) for id in ids]
+            result=[store.analyze(id,include_experimental=args.experimental_grid) for id in ids]
         elif args.command=='serve':
             from .web import create_app
             print(f'HRE local editor: http://127.0.0.1:{args.port}',flush=True)

@@ -54,7 +54,9 @@ def create_app(store):
         return jsonify(store.import_zip(data) if name.lower().endswith('.zip') else [store.import_bytes(data,name)])
 
     @app.post('/api/analyze/<id>')
-    def analyze(id): return jsonify(store.analyze(id))
+    def analyze(id):
+        data=request.get_json(silent=True) or {}
+        return jsonify(store.analyze(id,include_experimental=data.get('experimental_grid') is True))
 
     @app.post('/api/rectify/<id>')
     def rectify(id):

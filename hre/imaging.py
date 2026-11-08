@@ -47,6 +47,90 @@ def _runs(values):
     return list(zip(np.flatnonzero(edges==1).tolist(),np.flatnonzero(edges==-1).tolist()))
 
 
+def extract_ink_grid_aware(rgb):
+    """Experimental blue-ink/neutral-grid candidate; never replaces saved masks.
+
+    Robust profiles along periodic near-axis lines estimate printed grid density.
+    Blue spectral evidence protects strokes crossing those lines. Black ink,
+    colored ruling and strong page curvature remain ambiguous; inspect manually.
+    """
+    rgb=np.asarray(rgb,dtype=np.uint8)
+    alpha,base_info=extract_ink(rgb)
+    h,w=alpha.shape
+    info={'method':'experimental-periodic-grid-profile-v2','experimental':True,
+          'grid_line_count':0,'decision':'candidate',
+          'warning':'Diagnostic candidate only; not calibrated. Black/blue grids and ink may be ambiguous.'}
+    mask=np.zeros((h,w),np.uint8)
+    if h*w>4_000_000:
+        info['decision']='fallback_diagnostic_size_limit'
+        return alpha,info,mask
+    size=base_info['background_kernel']
+    background=cv2.morphologyEx(rgb,cv2.MORPH_CLOSE,np.ones((size,size),np.uint8))
+    background=cv2.GaussianBlur(background,(0,0),max(2,size/4))
+    density=np.maximum(0,np.log((background.astype(float)+1)/(rgb.astype(float)+1)))
+    blue=(density[:,:,0]+density[:,:,1])/2-density[:,:,2]
+    if np.count_nonzero(blue>.025)<max(8,int(h*w*.0002)):
+        info['decision']='fallback_no_blue_evidence'
+        return alpha,info,mask
+    neutral=np.min(density,axis=2)
+    binary=np.uint8(neutral>.018)*255
+    lines=cv2.HoughLinesP(binary,1,np.pi/720,threshold=max(15,min(h,w)//8),
+                          minLineLength=max(25,int(min(h,w)*.42)),maxLineGap=max(3,min(h,w)//35))
+    families={'horizontal':[],'vertical':[]}
+    if lines is not None:
+        for x0,y0,x1,y1 in lines[:,0,:]:
+            dx,dy=abs(x1-x0),abs(y1-y0)
+            horizontal=dx>=w*.42 and dy<=max(2,dx*.14)
+            vertical=dy>=h*.42 and dx<=max(2,dy*.14)
+            if horizontal:
+                slope=(y1-y0)/(x1-x0)
+                families['horizontal'].append((y0+slope*(w/2-x0),slope))
+            elif vertical:
+                slope=(x1-x0)/(y1-y0)
+                families['vertical'].append((x0+slope*(h/2-y0),slope))
+    field=np.zeros_like(density)
+    for orientation,segments in families.items():
+        groups=[]
+        for center,slope in sorted(segments):
+            if groups and abs(center-np.median([p[0] for p in groups[-1]]))<=3:
+                groups[-1].append((center,slope))
+            else:groups.append([(center,slope)])
+        centers=np.array([np.median([p[0] for p in g]) for g in groups])
+        if len(centers)<4:continue
+        spacing=float(np.median(np.diff(centers)))
+        if spacing<6:continue
+        distance=abs((centers[:,None]-centers[None,:]+spacing/2)%spacing-spacing/2)
+        support=(distance<=max(2,spacing*.12)).sum(axis=1)
+        keep=support>=max(4,int(support.max()*.7))
+        for group,center,accept in zip(groups,centers,keep):
+            if not accept:continue
+            slope=float(np.median([p[1] for p in group]))
+            axis=np.arange(w if orientation=='horizontal' else h)
+            cross=center+slope*(axis-(w if orientation=='horizontal' else h)/2)
+            for offset in range(-3,4):
+                other=np.rint(cross+offset).astype(int)
+                if orientation=='horizontal':xs,ys=axis,other
+                else:xs,ys=other,axis
+                inside=(xs>=0)&(xs<w)&(ys>=0)&(ys<h);xs,ys=xs[inside],ys[inside]
+                if len(xs)<8:continue
+                profile=np.quantile(density[ys,xs],.35,axis=0)
+                if profile.max()<.012:continue
+                field[ys,xs]=np.maximum(field[ys,xs],profile)
+            info['grid_line_count']+=1
+    mask[np.max(field,axis=2)>.012]=255
+    residual=np.maximum(0,density-field)
+    corrected=background.astype(float)/255*(1-np.exp(-residual))
+    denom=background.astype(float)/255-np.asarray(base_info['ink_color_srgb'])
+    fitted=np.clip(np.sum(corrected*denom,axis=2)/np.maximum(np.sum(denom**2,axis=2),.02),0,1)
+    protection=np.clip((blue-.01)/.04,0,1)
+    candidate=alpha.copy()
+    candidate[mask>0]=np.maximum(fitted,alpha*protection)[mask>0]
+    info['grid_candidate_pixels']=int((mask>0).sum())
+    info['suppressed_alpha_mass']=float(np.sum(np.maximum(0,alpha-candidate)))
+    if not info['grid_line_count']:info['decision']='fallback_no_periodic_grid'
+    return candidate.astype(np.float32),info,mask
+
+
 def segment(alpha):
     binary = (alpha>.16).astype(np.uint8)
     h,w=binary.shape
@@ -85,7 +169,7 @@ def metrics(alpha):
             'baseline_hint':float(np.quantile(ys,.95)) if ys.size else 0.}
 
 
-def ink_layers(rgb):
+def ink_layers(rgb,include_experimental=False):
     alpha,info=extract_ink(rgb)
     size=info['background_kernel']
     background=cv2.morphologyEx(rgb,cv2.MORPH_CLOSE,np.ones((size,size),np.uint8))
@@ -96,10 +180,15 @@ def ink_layers(rgb):
     ruling=cv2.morphologyEx(weak,cv2.MORPH_OPEN,np.ones((1,max(30,w//5)),np.uint8))|\
            cv2.morphologyEx(weak,cv2.MORPH_OPEN,np.ones((max(30,h//5),1),np.uint8))
     near=cv2.dilate(ruling,np.ones((3,3),np.uint8))>0
-    return {'background':background,'ink_score':np.uint8(alpha*255),
+    layers={'background':background,'ink_score':np.uint8(alpha*255),
             'high_ink':np.uint8(alpha>.7)*255,
             'uncertain':np.uint8((alpha>.03)&(alpha<=.7))*255,
-            'grid_intersections':np.uint8(near&(alpha>.1))*255},info
+            'grid_intersections':np.uint8(near&(alpha>.1))*255}
+    if include_experimental:
+        grid_alpha,grid_info,grid_candidates=extract_ink_grid_aware(rgb)
+        layers.update(grid_aware_alpha=np.uint8(grid_alpha*255),grid_candidates=grid_candidates)
+        info={**info,'experimental_grid':grid_info}
+    return layers,info
 
 
 def valid_polygon(points, width, height):

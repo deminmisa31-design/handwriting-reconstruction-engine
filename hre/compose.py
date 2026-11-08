@@ -2,6 +2,7 @@
 import hashlib
 from pathlib import Path
 import re
+import unicodedata
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -43,35 +44,173 @@ def _word_plan(word,candidates,language):
     return min(endings.values(),key=lambda p:p[0])[1] if endings else None
 
 
-def plan_text(store,text,language,mode='strict-real'):
-    if language not in ('ru','en'): raise ValueError('language must be ru or en')
-    if not isinstance(text,str) or len(text)>10000: raise ValueError('Text limit: 10000 characters')
-    # Ambiguous controls/tabs require user-specified layout rather than guessing.
-    if any((c.isspace() and c not in ' \n') or (ord(c)<32 and c!='\n') for c in text):
-        raise ValueError('Use spaces and LF newlines; tabs/control characters unsupported')
-    if mode not in ('strict-real','experimental-synthesis'):raise ValueError('Unsupported composition mode')
-    sources={s['id']:s for s in store.sources()}
-    candidates=sorted([a for a in store.samples() if a['status']=='verified' and a['language']==language
-                       and a['text'] and a['kind']!='stroke' and
-                       (mode!='strict-real' or not sources[a['source_id']]['synthetic'])],key=lambda a:a['id'])
-    tokens=[]; missing=[]; group=0
-    for match in re.finditer(r' +|\n|[^ \n]+',text):
-        value=match.group(); offset=match.start()
-        if value.isspace():
-            tokens.append({'kind':'newline' if value=='\n' else 'space','text':value,'start':offset,'end':match.end()})
+# HRE-MIXED-SCRIPT-PUNCTUATION-V1
+# Punctuation is a separate verified glyph, never silently rendered as a font.
+def _character_script(ch):
+    name = unicodedata.name(ch, '')
+    if 'CYRILLIC' in name and ch.isalpha():
+        return 'ru'
+    if 'LATIN' in name and ch.isalpha():
+        return 'en'
+    return 'common'
+
+
+def _split_token_runs(token, candidates):
+    """Separate Cyrillic, Latin, digits and individual marks without altering text."""
+    runs = []
+    i = 0
+    while i < len(token):
+        # Keep already verified compounds/contractions intact before separating
+        # surrounding punctuation; never turn a word prefix into isolated letters.
+        embedded = []
+        for a in candidates:
+            value = a['text']
+            if a['kind'] != 'word' or len(value) < 2 or not token.startswith(value, i):
+                continue
+            scripts = {_character_script(c) for c in value} - {'common'}
+            if len(scripts) > 1 or (scripts and a['language'] not in scripts):
+                continue
+            kind = next(iter(scripts), 'common')
+            end = i + len(value)
+            if end < len(token) and (_character_script(token[end]) == kind != 'common'
+                                    or unicodedata.category(token[end]).startswith('M')):
+                continue
+            embedded.append((value, kind))
+        if embedded:
+            value, kind = max(embedded, key=lambda x: len(x[0]))
+            runs.append((value, kind, i)); i += len(value)
             continue
-        path=_word_plan(value,candidates,language)
-        if path is None:
-            missing.append({'text':value,'start':offset,'end':match.end()}); continue
-        for i,a in enumerate(path):
-            tokens.append({'kind':'sample','sample_id':a['id'],'revision':a['revision'],
-                           'text':a['text'],'start':offset,'end':offset+len(a['text']),
-                           'group':group,'join_previous':i>0 and language=='ru'})
-            offset+=len(a['text'])
-        group+=1
-    if missing: raise CoverageError(missing)
-    assert ''.join(t['text'] for t in tokens)==text
-    return {'text':text,'language':language,'mode':mode,'tokens':tokens,'engine_version':__version__}
+        kind = _character_script(token[i])
+        j = i + 1
+        if kind != 'common':
+            while j < len(token) and (_character_script(token[j]) == kind or
+                                     unicodedata.category(token[j]).startswith('M')):
+                j += 1
+        elif token[i].isdigit():
+            while j < len(token) and token[j].isdigit():
+                j += 1
+        # Marks (commas, quotes, dashes...) remain individual characters.
+        runs.append((token[i:j], kind, i))
+        i = j
+    return runs
+
+
+def _plan_one_token(token, candidates, language, start, group):
+    """Return verified sample tokens, plus missing spans, for one whitespace token.
+
+    A verified whole token has priority. Otherwise split into script runs and
+    punctuation marks, allowing a word sample plus a separate comma/period.
+    """
+    scripts = {_character_script(c) for c in token} - {'common'}
+    if language != 'auto' and scripts - {language}:
+        return [], [{'text': token, 'start': start, 'end': start + len(token),
+                     'reason': 'script mismatch; use --language auto'}]
+    exact = [a for a in candidates if a['text'] == token and
+             (language == 'auto' or a['language'] == language) and
+             (len(scripts) != 1 or a['language'] in scripts)]
+    if exact:
+        chosen = sorted(exact, key=lambda a: (a['kind'] != 'word', a['id']))[0]
+        return [{'kind': 'sample', 'sample_id': chosen['id'],
+                 'revision': chosen['revision'], 'text': token,
+                 'start': start, 'end': start + len(token),
+                 'group': group, 'join_previous': False}], []
+    # Preserve the original whole-token fragment DP, e.g. do + n't + comma.
+    # Script splitting is a fallback, not a reason to discard valid coverage.
+    fragment_fallback=None
+    if len(scripts) <= 1:
+        trial_languages = list(scripts) if scripts else ([language] if language != 'auto' else ['ru','en'])
+        for lang in trial_languages:
+            path = _word_plan(token, [a for a in candidates if a['language'] == lang], lang if scripts else 'en')
+            if path:
+                output=[];cursor=start
+                for index,a in enumerate(path):
+                    join=bool(index and lang=='ru' and _character_script(path[index-1]['text'][-1])=='ru'
+                              and _character_script(a['text'][0])=='ru')
+                    output.append({'kind':'sample','sample_id':a['id'],'revision':a['revision'],'text':a['text'],
+                                   'start':cursor,'end':cursor+len(a['text']),'group':group,'join_previous':join})
+                    cursor+=len(a['text'])
+                fragment_fallback=output
+                break
+    runs = _split_token_runs(token, candidates)
+    outputs = []
+    missing = []
+    preceding_script = None
+    for i, (part, kind, offset) in enumerate(runs):
+        next_script = next((r[1] for r in runs[i+1:] if r[1] != 'common'), None)
+        if kind != 'common':
+            trial = [kind]
+        elif language != 'auto':
+            trial = [language]
+        else:
+            preferred = preceding_script or next_script or 'ru'
+            trial = [preferred, 'en' if preferred == 'ru' else 'ru']
+        selected = None
+        selected_lang = None
+        for trial_lang in trial:
+            relevant = [a for a in candidates if a['language'] == trial_lang]
+            # Neutral digits/marks are discrete shapes, even when their sample
+            # metadata belongs to the Russian library; no cursive anchors needed.
+            path = _word_plan(part, relevant, trial_lang if kind != 'common' else 'en')
+            if path:
+                selected = path
+                selected_lang = trial_lang
+                break
+        if selected is None:
+            missing.append({'text': part, 'start': start + offset,
+                            'end': start + offset + len(part),
+                            'reason': 'no verified real sample' })
+            continue
+        cursor = start + offset
+        for index, a in enumerate(selected):
+            # Joining is only for consecutive verified Russian cursive fragments,
+            # not between an entire word and trailing punctuation.
+            join = bool(index and selected_lang == 'ru' and kind == 'ru')
+            outputs.append({'kind': 'sample', 'sample_id': a['id'],
+                            'revision': a['revision'], 'text': a['text'],
+                            'start': cursor, 'end': cursor + len(a['text']),
+                            'group': group, 'join_previous': join})
+            cursor += len(a['text'])
+        if kind != 'common':
+            preceding_script = kind
+    if missing and fragment_fallback is not None:
+        return fragment_fallback,[]
+    return outputs, missing
+
+
+def plan_text(store, text, language, mode='strict-real'):
+    if language not in ('ru', 'en', 'auto'):
+        raise ValueError('language must be ru, en or auto')
+    if not isinstance(text, str) or len(text) > 10000:
+        raise ValueError('Text limit: 10000 characters')
+    if any((c.isspace() and c not in ' \n') or (ord(c) < 32 and c != '\n') for c in text):
+        raise ValueError('Use spaces and LF newlines; tabs/control characters unsupported')
+    if mode not in ('strict-real', 'experimental-synthesis'):
+        raise ValueError('Unsupported composition mode')
+    sources = {s['id']: s for s in store.sources()}
+    candidates = sorted(
+        [a for a in store.samples()
+         if a['status'] == 'verified' and
+         (language == 'auto' or a['language'] == language) and
+         a['text'] and a['kind'] != 'stroke' and
+         (mode != 'strict-real' or not sources[a['source_id']]['synthetic'])],
+        key=lambda a: a['id'])
+    tokens, missing, group = [], [], 0
+    for match in re.finditer(r' +|\n|[^ \n]+', text):
+        value, offset = match.group(), match.start()
+        if value.isspace():
+            tokens.append({'kind': 'newline' if value == '\n' else 'space',
+                           'text': value, 'start': offset, 'end': match.end()})
+            continue
+        planned, unavailable = _plan_one_token(value, candidates, language, offset, group)
+        tokens.extend(planned)
+        missing.extend(unavailable)
+        group += 1
+    if missing:
+        raise CoverageError(missing)
+    if ''.join(t['text'] for t in tokens) != text:
+        raise AssertionError('Internal token segmentation must preserve exact input text')
+    return {'text': text, 'language': language, 'mode': mode,
+            'tokens': tokens, 'engine_version': __version__}
 
 
 def render(store,text,language,output,width=1200,height=1600,margin=48,

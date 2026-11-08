@@ -196,7 +196,7 @@ class Store:
         with self.connect() as c:c.execute('INSERT INTO sources VALUES (?,?)',(view_id,json.dumps(view,ensure_ascii=False)))
         return view
 
-    def analyze(self,id):
+    def analyze(self,id,include_experimental=False):
         s=self.verify_source(id)
         alpha,info=self.alpha(id)
         prefix='analysis/'+id
@@ -214,7 +214,9 @@ class Store:
                 'alpha':prefix+'-alpha.png','skeleton':prefix+'-skeleton.png','overlay':prefix+'-overlay.png',
                 'warning':'Heuristic candidates only, no character recognition.'}
         report['grid']=detect_grid(np.array(Image.open(self.file(s['page'])).convert('RGB')))
-        layers,_=ink_layers(np.array(Image.open(self.file(s['page'])).convert('RGB')))
+        layers,layer_info=ink_layers(np.array(Image.open(self.file(s['page'])).convert('RGB')),
+                                    include_experimental=include_experimental)
+        if include_experimental:report['experimental_grid']=layer_info['experimental_grid']
         for name,array in layers.items():
             path=prefix+'-'+name+'.png';Image.fromarray(array).save(self.file(path));report[name]=path
         report['ink_score_calibration']='Heuristic score and thresholds, not calibrated probabilities'
