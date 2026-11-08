@@ -8,3 +8,7 @@ demo-library*/
 *.sqlite3-*
 *.pyc
 dist/
+private-diagnostics/
+real-photos/
+*.bak
+.codex-remote-attachments/
